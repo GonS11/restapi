@@ -1,57 +1,55 @@
 package com.gonzalo.restapi.controller;
 
-import com.gonzalo.restapi.dto.ExpenseDTO; // DTO para la información de los gastos
-import com.gonzalo.restapi.io.ExpenseResponse; // Respuesta final que se devuelve al cliente
-import com.gonzalo.restapi.service.ExpenseService; // Servicio que maneja la lógica de los gastos
-import lombok.RequiredArgsConstructor; // Lombok para generar el constructor automáticamente
-import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper; // Biblioteca para mapear entre objetos
-import org.springframework.web.bind.annotation.GetMapping; // Anotación para manejar solicitudes GET
-import org.springframework.web.bind.annotation.RestController; // Marca la clase como un controlador REST
+import com.gonzalo.restapi.dto.ExpenseDTO; // DTO de gastos
+import com.gonzalo.restapi.io.ExpenseResponse; // Respuesta para el cliente
+import com.gonzalo.restapi.service.ExpenseService; // Lógica de los gastos
+import lombok.RequiredArgsConstructor; // Constructor automático para campos final
+import lombok.extern.slf4j.Slf4j; // Para registro de logs
+import org.modelmapper.ModelMapper; // Para mapear entre objetos
+import org.springframework.web.bind.annotation.CrossOrigin; // Permite solicitudes CORS
+import org.springframework.web.bind.annotation.GetMapping; // Para manejar solicitudes GET
+import org.springframework.web.bind.annotation.RestController; // Define la clase como controlador REST
 
 import java.util.List;
-import java.util.stream.Collectors; // Para transformar listas usando streams
+import java.util.stream.Collectors; // Para transformar listas con streams
 
 /**
- * This is controller class for Expense module
+ * Controlador para la gestión de gastos.
  * @author Gonzalo
- * */
-@RestController // Define que esta clase es un controlador REST
-@RequiredArgsConstructor // Genera automáticamente un constructor con los campos final
-@Slf4j //Se usa para los logs
+ */
+@RestController // Clase como controlador REST
+@RequiredArgsConstructor // Constructor con campos final
+@Slf4j // Para registrar información
+@CrossOrigin("*") // Permite solicitudes desde cualquier origen
 public class ExpenseController {
 
     private final ExpenseService expenseService; // Servicio para obtener los gastos
-    private final ModelMapper modelMapper; // Objeto que realiza la conversión entre DTOs y entidades
+    private final ModelMapper modelMapper; // Mapper para convertir entre DTOs y Response
 
     /**
-     * It will fetch the expenses from database
-     * @return list
-     * */
-    @GetMapping("/expenses") // Define el punto de acceso HTTP GET a /expenses
-    public List<ExpenseResponse> getExpenses(){
+     * Obtiene la lista de todos los gastos.
+     * @return Lista de gastos convertidos a Response.
+     */
+    @GetMapping("/expenses") // Punto de acceso para obtener los gastos
+    public List<ExpenseResponse> getExpenses() {
         log.info("API GET /expenses called");
 
-        // Llama al servicio para obtener todos los gastos en forma de DTO
+        // Obtiene los gastos como DTOs
         List<ExpenseDTO> list = expenseService.getAllExpenses();
-        log.info("Printing the data from service {}",list);
+        log.info("Data from service: {}", list);
 
-        // Convierte la lista de ExpenseDTO a ExpenseResponse usando modelMapper
-        List<ExpenseResponse> response = list.stream()
-                .map(expenseDTO -> mapToExpenseResponse(expenseDTO)) // Convierte cada DTO a Response
+        // Convierte los DTOs a Response
+        return list.stream()
+                .map(this::mapToExpenseResponse) // Mapea cada DTO a Response
                 .collect(Collectors.toList()); // Recoge los resultados en una lista
-
-        // Devuelve la lista de respuestas al cliente
-        return response;
     }
 
     /**
-     * Mapper method for converting expense dto object to expense response object
-     * @param expenseDTO
+     * Convierte un ExpenseDTO a ExpenseResponse.
+     * @param expenseDTO El DTO del gasto
      * @return ExpenseResponse
-     * */
-    private ExpenseResponse mapToExpenseResponse(ExpenseDTO expenseDTO){
-        // Usando ModelMapper para convertir entre tipos
-        return modelMapper.map(expenseDTO, ExpenseResponse.class);
+     */
+    private ExpenseResponse mapToExpenseResponse(ExpenseDTO expenseDTO) {
+        return modelMapper.map(expenseDTO, ExpenseResponse.class); // Convierte usando ModelMapper
     }
 }
