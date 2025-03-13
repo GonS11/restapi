@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j; // Para registro de logs
 import org.modelmapper.ModelMapper; // Para mapear entre objetos
 import org.springframework.web.bind.annotation.CrossOrigin; // Permite solicitudes CORS
 import org.springframework.web.bind.annotation.GetMapping; // Para manejar solicitudes GET
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController; // Define la clase como controlador REST
 
 import java.util.List;
@@ -42,6 +43,20 @@ public class ExpenseController {
         return list.stream()
                 .map(this::mapToExpenseResponse) // Mapea cada DTO a Response
                 .collect(Collectors.toList()); // Recoge los resultados en una lista
+    }
+
+    /**
+     * Obtiene un solo gasto de la BD
+     * @param expenseId
+     * @return Un gasto convertidos a Response.
+     */
+    @GetMapping("/expenses/{expenseId}")
+    public ExpenseResponse getExpenseById(@PathVariable String expenseId){
+        log.info("API GET /expenses/{} called",expenseId);
+        ExpenseDTO expenseDTO= expenseService.getExpenseByExpenseId(expenseId);
+        log.info("Printing the expense details {}",expenseDTO);
+        return mapToExpenseResponse(expenseDTO);
+        //return "Printing the expense id "+expenseId;
     }
 
     /**
