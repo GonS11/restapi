@@ -2,6 +2,7 @@ package com.gonzalo.restapi.service.impl;
 
 import com.gonzalo.restapi.dto.ExpenseDTO;           // Importa la clase DTO para representar los gastos
 import com.gonzalo.restapi.entity.ExpenseEntity;     // Importa la entidad para interactuar con la base de datos
+import com.gonzalo.restapi.exceptions.ResourceNotFoundException;
 import com.gonzalo.restapi.repository.ExpenseRepository;  // Importa el repositorio para acceder a la base de datos
 import com.gonzalo.restapi.service.ExpenseService;   // Interfaz que define los métodos del servicio
 import lombok.RequiredArgsConstructor;              // Genera un constructor con los campos final
@@ -41,6 +42,20 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         // Devuelve la lista de DTOs
         return listOfExpenses;
+    }
+
+    /**
+     * It wil fetch the single expense details from database
+     * @param expenseId
+     * @return ExpenseDTO
+     * */
+    @Override
+    public ExpenseDTO getExpenseByExpenseId(String expenseId) {
+       ExpenseEntity expenseEntity= expenseRepository.findByExpenseId(expenseId)
+                                                        .orElseThrow(()-> new ResourceNotFoundException("Expense not found for the id "+expenseId));
+
+       log.info("Printing the expense entity details {}",expenseEntity);
+       return mapToExpenseDTO(expenseEntity);
     }
 
     /**
